@@ -11,7 +11,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
 /**
  *
@@ -19,6 +21,8 @@ import javax.swing.JFileChooser;
  */
 public class MainSwingFrame extends javax.swing.JFrame {
     private File file = null;
+    private JFileChooser fileChooser;
+    
     /**
      * Creates new form MainSwingFrame
      */
@@ -46,6 +50,7 @@ public class MainSwingFrame extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         MenuItem_Open = new javax.swing.JMenuItem();
         MenuItem_Save = new javax.swing.JMenuItem();
+        MenuItem_SaveAs = new javax.swing.JMenuItem();
         MenuItem_Exit = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -112,6 +117,15 @@ public class MainSwingFrame extends javax.swing.JFrame {
         });
         jMenu1.add(MenuItem_Save);
 
+        MenuItem_SaveAs.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        MenuItem_SaveAs.setText("Save As");
+        MenuItem_SaveAs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenuItem_SaveAsActionPerformed(evt);
+            }
+        });
+        jMenu1.add(MenuItem_SaveAs);
+
         MenuItem_Exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         MenuItem_Exit.setText("Exit");
         MenuItem_Exit.addActionListener(new java.awt.event.ActionListener() {
@@ -176,8 +190,16 @@ public class MainSwingFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         String line;
         JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.setFileFilter(new ExtensionFileFilter(
+                            new String[] {".txt"},
+                            "Text Document (*.txt)"));
+        fileChooser.addChoosableFileFilter(new ExtensionFileFilter(
+                            new String[] {".ipro"},
+                            "iPro Source File (*.ipro)"));
         int returnVal = fileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
+            
         file = fileChooser.getSelectedFile();
         try {
             BufferedReader input = new BufferedReader(new FileReader(file));
@@ -203,23 +225,84 @@ public class MainSwingFrame extends javax.swing.JFrame {
     private void MenuItem_SaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_SaveActionPerformed
         // TODO add your handling code here:
 		// create and display dialog box to get file name
-        if(file==null){
-            JFileChooser dialog = new JFileChooser();
-            // Make sure the user didn't cancel the file chooser
-            if (dialog.showSaveDialog(SourceEditor) == JFileChooser.APPROVE_OPTION) {
-		// Get the file the user selected
-		file = dialog.getSelectedFile();
-            }
+        boolean flag = false;
+        if(file==null || !file.exists()){
+            fileChooser = new JFileChooser();
+                if(file != null)
+                    fileChooser.setCurrentDirectory(new File(file.getParent()));
+                
+                    fileChooser.setAcceptAllFileFilterUsed(false);
+                       fileChooser.setFileFilter(new ExtensionFileFilter(
+                            new String[] {".txt"},
+                            "Text Document (*.txt)"));
+                        fileChooser.addChoosableFileFilter(new ExtensionFileFilter(
+                            new String[] {".ipro"},
+                            "iPro Source File (*.ipro)"));
+                        
+                         // Make sure the user didn't cancel the file chooser
+                    if (fileChooser.showSaveDialog(SourceEditor) == JFileChooser.APPROVE_OPTION) {
+                        // Get the file the user selected
+                        file = fileChooser.getSelectedFile();
+                        if(!file.getName().endsWith("."+((ExtensionFileFilter)fileChooser.getFileFilter()).getExtensions().get(0)))
+                            file = new File(file.getAbsolutePath()+"."+((ExtensionFileFilter)fileChooser.getFileFilter()).getExtensions().get(0));
+                        flag = true;
+                        saveFile();
+                    }
         }
+        if(flag = false){
+            saveFile();
+        }
+    }//GEN-LAST:event_MenuItem_SaveActionPerformed
+
+    private boolean saveFile(){
+        boolean flag = false;
         try {
+            System.out.println(file.getAbsolutePath());
             // Now write to the file
             PrintWriter output = new PrintWriter(new FileWriter(file));
             output.println(SourceEditor.getText());
             output.close();
+            flag = true;
 	} catch (IOException e) {
             System.out.println(e.getMessage());
-	}
-    }//GEN-LAST:event_MenuItem_SaveActionPerformed
+	} finally{
+            return flag;
+        }
+    }
+    
+    private void MenuItem_SaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_SaveAsActionPerformed
+        // TODO add your handling code here:
+        fileChooser = new JFileChooser();
+        if(file != null)
+            fileChooser.setCurrentDirectory(new File(file.getParent()));
+                    fileChooser.setAcceptAllFileFilterUsed(false);
+                       fileChooser.setFileFilter(new ExtensionFileFilter(
+                            new String[] {".txt"},
+                            "Text Document (*.txt)"));
+                        fileChooser.addChoosableFileFilter(new ExtensionFileFilter(
+                            new String[] {".ipro"},
+                            "iPro Source File (*.ipro)"));
+            // Make sure the user didn't cancel the file chooser
+            if (fileChooser.showSaveDialog(SourceEditor) == JFileChooser.APPROVE_OPTION) {
+		// Get the file the user selected
+		file = fileChooser.getSelectedFile();
+                            
+                if(!file.getName().endsWith("."+((ExtensionFileFilter)fileChooser.getFileFilter()).getExtensions().get(0)))
+                    file = new File(file.getAbsolutePath()+"."+((ExtensionFileFilter)fileChooser.getFileFilter()).getExtensions().get(0));
+            
+            try {
+                System.out.println(file.getAbsolutePath());
+                // Now write to the file
+                PrintWriter output = new PrintWriter(new FileWriter(file));
+                output.println(SourceEditor.getText());
+                output.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }finally{
+                fileChooser.removeAll();
+            }
+            }
+    }//GEN-LAST:event_MenuItem_SaveAsActionPerformed
 
     /**
      * @param args the command line arguments
@@ -263,6 +346,7 @@ public class MainSwingFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem MenuItem_Exit;
     private javax.swing.JMenuItem MenuItem_Open;
     private javax.swing.JMenuItem MenuItem_Save;
+    private javax.swing.JMenuItem MenuItem_SaveAs;
     private javax.swing.JTextArea OutputCanvas;
     private javax.swing.JTextArea SourceEditor;
     private javax.swing.JMenu jMenu1;
@@ -278,4 +362,60 @@ public class MainSwingFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     // End of variables declaration//GEN-END:variables
+
+static class ExtensionFileFilter extends FileFilter {
+
+    private List<String> extensions;
+    private String description;
+
+    public ExtensionFileFilter(String[] exts, String desc) {
+        if (exts != null) {
+            extensions = new java.util.ArrayList<String>();
+
+            for (String ext : exts) {
+
+                // Clean array of extensions to remove "."
+                // and transform to lowercase.
+                extensions.add(
+                    ext.replace(".", "").trim().toLowerCase()
+                );
+            }
+        } // No else need; null extensions handled below.
+
+        // Using inline if syntax, use input from desc or use
+        // a default value.
+        // Wrap with an if statement to default as well as
+        // avoid NullPointerException when using trim().
+        description = (desc != null) ? desc.trim() : "Custom File List";
+    }
+
+    public List<String> getExtensions(){
+        return extensions;
+    }
+    // Handles which files are allowed by filter.
+    @Override
+    public boolean accept(File f) {
+    
+        // Allow directories to be seen.
+        if (f.isDirectory()) return true;
+
+        // exit if no extensions exist.
+        if (extensions == null) return false;
+		
+        // Allows files with extensions specified to be seen.
+        for (String ext : extensions) {
+            if (f.getName().toLowerCase().endsWith("." + ext))
+                return true;
+        }
+
+        // Otherwise file is not shown.
+        return false;
+    }
+
+    // 'Files of Type' description
+    @Override
+    public String getDescription() {
+        return description;
+    }
+}
 }
