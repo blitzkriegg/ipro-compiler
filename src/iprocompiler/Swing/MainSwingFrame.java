@@ -5,14 +5,20 @@
  */
 package iprocompiler.Swing;
 
-import javax.swing.JTextArea;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.swing.JFileChooser;
 
 /**
  *
  * @author Michael
  */
 public class MainSwingFrame extends javax.swing.JFrame {
-
+    private File file = null;
     /**
      * Creates new form MainSwingFrame
      */
@@ -29,19 +35,18 @@ public class MainSwingFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jFileChooser1 = new javax.swing.JFileChooser();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        SourceEditor = new javax.swing.JTextArea();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
+        OutputCanvas = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
-        jMenuItem3 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        MenuItem_Open = new javax.swing.JMenuItem();
+        MenuItem_Save = new javax.swing.JMenuItem();
+        MenuItem_Exit = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
@@ -50,9 +55,11 @@ public class MainSwingFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        SourceEditor.setColumns(20);
+        SourceEditor.setFont(new java.awt.Font("Monospaced", 0, 14)); // NOI18N
+        SourceEditor.setRows(5);
+        SourceEditor.setTabSize(5);
+        jScrollPane1.setViewportView(SourceEditor);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -67,10 +74,10 @@ public class MainSwingFrame extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Source", jPanel1);
 
-        jTextArea2.setEditable(false);
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jScrollPane2.setViewportView(jTextArea2);
+        OutputCanvas.setEditable(false);
+        OutputCanvas.setColumns(20);
+        OutputCanvas.setRows(5);
+        jScrollPane2.setViewportView(OutputCanvas);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -87,27 +94,32 @@ public class MainSwingFrame extends javax.swing.JFrame {
 
         jMenu1.setText("File");
 
-        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem3.setText("Open");
-        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+        MenuItem_Open.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        MenuItem_Open.setText("Open");
+        MenuItem_Open.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
+                MenuItem_OpenActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem3);
+        jMenu1.add(MenuItem_Open);
 
-        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem2.setText("Save");
-        jMenu1.add(jMenuItem2);
-
-        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
-        jMenuItem1.setText("Exit");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        MenuItem_Save.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        MenuItem_Save.setText("Save");
+        MenuItem_Save.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                MenuItem_SaveActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem1);
+        jMenu1.add(MenuItem_Save);
+
+        MenuItem_Exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
+        MenuItem_Exit.setText("Exit");
+        MenuItem_Exit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenuItem_ExitActionPerformed(evt);
+            }
+        });
+        jMenu1.add(MenuItem_Exit);
 
         jMenuBar1.add(jMenu1);
 
@@ -151,19 +163,63 @@ public class MainSwingFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void MenuItem_ExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_ExitActionPerformed
         // TODO add your handling code here:
         System.exit(0);
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_MenuItem_ExitActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+    private void MenuItem_OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_OpenActionPerformed
         // TODO add your handling code here:
-        jFileChooser1.
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+        String line;
+        JFileChooser fileChooser = new JFileChooser();
+        int returnVal = fileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+        file = fileChooser.getSelectedFile();
+        try {
+            BufferedReader input = new BufferedReader(new FileReader(file));
+            SourceEditor.setText("");
+            line = input.readLine();
+            while (line != null) {
+                SourceEditor.append(line + "\n");
+		line = input.readLine();
+	    }
+                
+            input.close();
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+        } catch(Exception ex) {
+          System.out.println("problem accessing file"+file.getAbsolutePath());
+        }
+        }
+        else {
+        System.out.println("File access cancelled by user.");
+        }
+    }//GEN-LAST:event_MenuItem_OpenActionPerformed
+
+    private void MenuItem_SaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_SaveActionPerformed
+        // TODO add your handling code here:
+		// create and display dialog box to get file name
+        if(file==null){
+            JFileChooser dialog = new JFileChooser();
+            // Make sure the user didn't cancel the file chooser
+            if (dialog.showSaveDialog(SourceEditor) == JFileChooser.APPROVE_OPTION) {
+		// Get the file the user selected
+		file = dialog.getSelectedFile();
+            }
+        }
+        try {
+            // Now write to the file
+            PrintWriter output = new PrintWriter(new FileWriter(file));
+            output.println(SourceEditor.getText());
+            output.close();
+	} catch (IOException e) {
+            System.out.println(e.getMessage());
+	}
+    }//GEN-LAST:event_MenuItem_SaveActionPerformed
 
     /**
      * @param args the command line arguments
@@ -201,17 +257,18 @@ public class MainSwingFrame extends javax.swing.JFrame {
     }
 
     private String getString(){
-        return jTextArea1.getText();
+        return SourceEditor.getText();
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JFileChooser jFileChooser1;
+    private javax.swing.JMenuItem MenuItem_Exit;
+    private javax.swing.JMenuItem MenuItem_Open;
+    private javax.swing.JMenuItem MenuItem_Save;
+    private javax.swing.JTextArea OutputCanvas;
+    private javax.swing.JTextArea SourceEditor;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
@@ -220,7 +277,5 @@ public class MainSwingFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
     // End of variables declaration//GEN-END:variables
 }
