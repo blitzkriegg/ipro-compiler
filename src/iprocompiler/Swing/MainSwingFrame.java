@@ -5,6 +5,8 @@
  */
 package iprocompiler.Swing;
 
+import java.awt.Dialog;
+import java.awt.Frame;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -189,7 +191,9 @@ public class MainSwingFrame extends javax.swing.JFrame {
     private void MenuItem_OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_OpenActionPerformed
         // TODO add your handling code here:
         String line;
-        JFileChooser fileChooser = new JFileChooser();
+        fileChooser = new JFileChooser();
+         if(file != null)
+                    fileChooser.setCurrentDirectory(new File(file.getParent()));
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setFileFilter(new ExtensionFileFilter(
                             new String[] {".txt"},
@@ -201,6 +205,8 @@ public class MainSwingFrame extends javax.swing.JFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             
         file = fileChooser.getSelectedFile();
+        if(!file.getName().endsWith("."+((ExtensionFileFilter)fileChooser.getFileFilter()).getExtensions().get(0)))
+                            file = new File(file.getAbsolutePath()+"."+((ExtensionFileFilter)fileChooser.getFileFilter()).getExtensions().get(0));
         try {
             BufferedReader input = new BufferedReader(new FileReader(file));
             SourceEditor.setText("");
@@ -249,7 +255,9 @@ public class MainSwingFrame extends javax.swing.JFrame {
                         saveFile();
                     }
         }
-        if(flag = false){
+        if(flag == false){
+            if(!file.getName().endsWith("."+((ExtensionFileFilter)fileChooser.getFileFilter()).getExtensions().get(0)))
+                            file = new File(file.getAbsolutePath()+"."+((ExtensionFileFilter)fileChooser.getFileFilter()).getExtensions().get(0));
             saveFile();
         }
     }//GEN-LAST:event_MenuItem_SaveActionPerformed
@@ -342,6 +350,8 @@ public class MainSwingFrame extends javax.swing.JFrame {
     private String getString(){
         return SourceEditor.getText();
     }
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem MenuItem_Exit;
     private javax.swing.JMenuItem MenuItem_Open;
