@@ -5,6 +5,7 @@
  */
 package iprocompiler.Swing;
 
+import iprocompiler.Control.IProCompiler;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.io.BufferedReader;
@@ -143,6 +144,11 @@ public class MainSwingFrame extends javax.swing.JFrame {
 
         jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F6, 0));
         jMenuItem4.setText("Compile");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem4);
 
         jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F6, java.awt.event.InputEvent.CTRL_MASK));
@@ -311,6 +317,16 @@ public class MainSwingFrame extends javax.swing.JFrame {
             }
             }
     }//GEN-LAST:event_MenuItem_SaveAsActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        // TODO add your handling code here:
+        
+        this.saveFile();
+        
+        IProCompiler ipro = new IProCompiler();
+        
+        
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     /**
      * @param args the command line arguments
