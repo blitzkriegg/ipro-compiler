@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,26 +18,37 @@ import java.util.regex.Pattern;
  * @author Michael
  */
 public class IProCompiler {
-    private int     lineNo;
-    private String  line;
-    final   String  nextline ="\n";    
-    private int     patternNo;
-
-    static String[] regexes = {"\\s*(?i)put\\s+((?i)[a-f]|\\w*(\\d{1,})*(\\W\\D)*|\\n|\\t\\b)\\s*",     //0 put                          2
-			    "\\s*(?i)get\\s+(?i)[a-f](\\s*|\\n|\\r\\n?)\\s*",                           //1get                          1
-                            "\\s*",                                                                      //2
-			    "\\s*(?i)set\\s+(?i)[a-f],\\s*\\d{1,}\\s*",                                 //3set                           3
-                            "\\s*(?i)(add|sub|mul|div|mod)\\s+(?i)[a-f],\\s*((?i)[a-f]|\\d{0,})\\s*",   //4add,sub,mul,div,mod           4
-                            "\\s*(?i)mov\\s+(?i)[a-f],\\s*(?i)[a-f]\\s*",                               //5mov                           5
-                            "\\s*(?i)cmp\\s+(?i)[a-f],\\s*((?i)[a-f]|\\d)",                             //6comp                          7
-                            "\\s*(?i)(je|jg|jl)\\s+label\\d{1}\\s*",                                    //7je,jg,jl                      8
-                            "\\s*(?i)\\w+:(\\n|\\r\\n?)*\\s*",                                          //8
-                            "\\s*(i*)(push|pop)\\s+[a-f]\\s*",                                          //9push,pop                      11,12
-                            "\\s*MACRO\\s+(?i)\\w+:\\s*",                                               //10Macro                         10
-                            "\\s*(?i)(start|end|exit)\\s*",                                             //11start,end,exit                0
-                            "\\s*(?i)\\w+\\s*",                                                         //12
-                            "([ ]*jmp[ ][\\w][\\w\\d]+)",                                              //13jmp};                           9
-                            "([ ]*[\\w][\\w\\d]+:)"};                                                   //14label};                         6
+    static String[] regexes = {
+                              "\\s*(?i)put\\s+((?i)[a-f]|\\w*(\\d{1,})*(\\W\\D)*|\\n|\\t\\b)\\s*",     //0 put                          2
+                              "\\s*(?i)get\\s+(?i)[a-f](\\s*|\\n|\\r\\n?)\\s*",                           //1get                          1
+                              "\\s*",                                                                      //2
+                              "\\s*(?i)set\\s+(?i)[a-f],\\s*\\d{1,}\\s*",                                 //3set                           3
+                              "\\s*(?i)(add|sub|mul|div|mod)\\s+(?i)[a-f],\\s*((?i)[a-f]|\\d{0,})\\s*",   //4add,sub,mul,div,mod           4
+                              "\\s*(?i)mov\\s+(?i)[a-f],\\s*(?i)[a-f]\\s*",                               //5mov                           5
+                              "\\s*(?i)cmp\\s+(?i)[a-f],\\s*((?i)[a-f]|\\d)",                             //6comp                          7
+                              "\\s*(?i)(je|jg|jl)\\s+label\\d{1}\\s*",                                    //7je,jg,jl                      8
+                              "\\s*(?i)\\w+:(\\n|\\r\\n?)*\\s*",                                          //8
+                              "\\s*(i*)(push|pop)\\s+[a-f]\\s*",                                          //9push,pop                      11,12
+                              "\\s*MACRO\\s+(?i)\\w+:\\s*",                                               //10Macro                         10
+                              "\\s*(?i)(start|end|exit)\\s*",                                             //11start,end,exit                0
+                              "\\s*(?i)\\w+\\s*",                                                         //12
+                              "([ ]*jmp[ ][\\w][\\w\\d]+)",                                              //13jmp};                           9
+                              "([ ]*[\\w][\\w\\d]+:)"};                                                   //14label};                         6
+    
+//            "start|exit",   //blocks
+//            "([ ]*get[ ]+[a-f])",//get statement
+//            "([ ]*put[ ]+[\\d\\w_])",   //put
+//            "([ ]*set[ ]+[\\d\\w_]+,[0-9]+)", //set satement
+//            "([ ]*add|sub|div|mul[ ]+[a-f],([a-f]|[\\d]))", //operation
+//            "([ ]*mov[ ]+[a-f],([a-f]|[\\d]*))",  //mov statement
+//            "([ ]*[A-Z]+:)",    //MACRO label    
+//            "([ ]*[\\w][\\w\\d]+:)",        //label
+//            "([ ]*cmp[ ][a-f],[a-f])",          //compaire
+//            "([ ]*(je|jg|jl)[ ]+[\\w][\\w\\d]+)",  //pair with cmp
+//            "([ ]*jmp[ ][\\w][\\w\\d]+)",   //jmp
+//            "([ ]*pop[ ]+[a-f])",   //pop
+//            "([ ]*push[ ]+(\\w\\d)*)",  //push
+//            "end"};
                             
                             
     /**
@@ -61,115 +73,118 @@ public class IProCompiler {
         return retval;
     }
     
-     public int StaticSymanticChecker(String path){
-            BufferedReader br = null; 
-            
-            String subline; //case7 (cmp)
+    public static int RegularExpressionCheck (String s){
+        int retval = -1;
+        for (int i = 0; i < regexes.length && retval ==-1 ; i++) {
+            if (s.matches(regexes[i]))
+                   retval = i;
+        }
+        return retval;
+    }
+        
+    public int StaticSymanticCheck(String code, int lineNumber){
+        
+        String subline; //case7 (cmp)
+        String [] codelines = code.split("//n");
+        String codeline = codelines[lineNumber];
+
+        
+        
             int counter=0;//case7 (cmp) if get out method need to traverse file pointer 
                 
-            StringBuffer compare = new StringBuffer(line),label = new StringBuffer();//case 8 9 (MACRO, Label)
+            StringBuffer compare = new StringBuffer(codeline);//case 8 9 (MACRO, Label)
             
-            
-		try { 
-			br = new BufferedReader(new FileReader(path));                     
-                        
-			switch(patternNo){    
+        
+			switch(this.RegularExpressionCheck(codeline)){    
                             case 7: case 13:
-                                int x=0;
-                                
+                                StringBuffer label = new StringBuffer();
+                                int x=0;                                
                                 for (;(compare.charAt(x)==' ');x++);
                                 for (;(compare.charAt(x)!=' ');x++);                              
                                 for (;(compare.charAt(x)==' ');x++);
                                 
                                 label.append(compare.subSequence(x,compare.length()));
                                 label.append(':');
-                                for (x=0;(subline = br.readLine()) != null;x++){               
-                                    if (x!=lineNo && subline.contains(label)){
+                                
+                               //Read Another ilne again                                
+                                for (x=0; x<codelines.length;x++) {
+                                    subline =codelines[x];                                    
+                                    if (x!=lineNumber && subline.contains(label)){
                                         break;          
                                     }
                                 }
-                                if (subline==null){
-                                    System.out.println("                    Symantics Error!! ** Label dose not found!!");                                   
+                                
+                                if (x==codeline.length()){
+                                    System.out.println("                    Symantics Error!! ** Label dose not found!!");   
+                                    //put error in data class
                                 }     
                                 break;
+                                
+                                
                             case 6:
-                                for(int i=0;(subline = br.readLine()) != null && i<lineNo;i++);
-                                for (lineNo--;(subline = br.readLine()) != null && subline.compareTo("\n")==-1;lineNo++,counter++); 
-                                Pattern r = Pattern.compile(regexes[7]);                                   
-                                Matcher m = r.matcher(subline);
-                                if (!m.find( )) {
-                                    System.out.println("                    Symantic Error! ** cmp should much with je, jg, jl");   
-                                    
+                                subline = null;
+                                for (lineNumber++; lineNumber!= codelines.length && codelines[lineNumber] != "\n" ;lineNumber++){
+                                    subline = codelines[lineNumber];
                                 }
+                                if(this.RegularExpressionCheck(subline)!=7){
+                                    System.out.println("                    Symantic Error! ** cmp should much with je, jg, jl");
+                                    // put Error in Data class
+                                }
+                                                               
                                 break;
                             
-                            case 14:
-                                r = Pattern.compile(regexes[10]);                                   
-                                m = r.matcher(line);
-                                
-                                //if it is MACRO then
-                                if (m.find( )) {
-                                    for(int i=0;(subline = br.readLine()) != null && i<=lineNo;i++);
-                                    x=1;
-                                    for (int i=0;(subline = br.readLine()) != null && x!=0;i++){
-                                        for (;subline.compareTo("\n")==-1 && (subline = br.readLine()) != null;);
-                                        if (i==0 && !subline.contains("start")){
-                                            System.out.println("                    Symantic Error ** MACRO can not found start keyword!");
-                                            x=0;
-                                            break;
-                                        }
-                                        r = Pattern.compile(regexes[13]);                                   
-                                        m = r.matcher(subline);
-                                        if (m.find( )){
-                                            System.out.println("                    Symantic Error ** MACRO is not capable of having jmp keyword!");
-                                            
-                                            x=0;
-                                            break;
-                                        }
-                                        r = Pattern.compile(regexes[7]);                                   
-                                        m = r.matcher(subline);
-                                        if (m.find( )){
-                                            System.out.println("                    Symantic Error ** MACRO is not capable of having je, jg, jl keyword!");
-                                            
-                                            x=0;
-                                            break;
-                                        }     
-                                        if (subline.contains("start") && i!=0)
-                                            x++;
-                                        else if (subline.contains("end"))
-                                            x--;
-                                    }
-                                    if (x>0){
-                                        System.out.println("                    Symantic Error ** MACRO can not found end keyword!");
-                                        
-                                    }
-                                }
-                                break;                             
-                            default:;
+//                            case 14:
+//                                r = Pattern.compile(regexes[10]);                                   
+//                                m = r.matcher(line);
+//                                
+//                                //if it is MACRO then
+//                                if (m.find( )) {
+//                                    for(int i=0;(subline = lineCode.readLine()) != null && i<=lineNo;i++);
+//                                    x=1;
+//                                    for (int i=0;(subline = lineCode.readLine()) != null && x!=0;i++){
+//                                        for (;subline.compareTo("\n")==-1 && (subline = lineCode.readLine()) != null;);
+//                                        if (i==0 && !subline.contains("start")){
+//                                            System.out.println("                    Symantic Error ** MACRO can not found start keyword!");
+//                                            x=0;
+//                                            break;
+//                                        }
+//                                        r = Pattern.compile(regexes[13]);                                   
+//                                        m = r.matcher(subline);
+//                                        if (m.find( )){
+//                                            System.out.println("                    Symantic Error ** MACRO is not capable of having jmp keyword!");
+//                                            
+//                                            x=0;
+//                                            break;
+//                                        }
+//                                        r = Pattern.compile(regexes[7]);                                   
+//                                        m = r.matcher(subline);
+//                                        if (m.find( )){
+//                                            System.out.println("                    Symantic Error ** MACRO is not capable of having je, jg, jl keyword!");
+//                                            
+//                                            x=0;
+//                                            break;
+//                                        }     
+//                                        if (subline.contains("start") && i!=0)
+//                                            x++;
+//                                        else if (subline.contains("end"))
+//                                            x--;
+//                                    }
+//                                    if (x>0){
+//                                        System.out.println("                    Symantic Error ** MACRO can not found end keyword!");
+//                                        
+//                                    }
+//                                }
+//                                break;                             
+//                            default:;
+//                       
                         }
-                                                                                               
-//=======================			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-		
-			
-		try {
-				if (br != null)br.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
 		return counter;	
 	}
         
-        public void DynamicSymanticChecker(String path ,int patternNo){
-            BufferedReader br = null; 
-
-		try { 
-			br = new BufferedReader(new FileReader(path));                     
+        public void DynamicSymanticChecker(String lineCode){
+           
                         
-			switch(patternNo){    
+			switch(this.RegularExpressionCheck(lineCode)){    
                             case 7: case 13:
                                 
                                 break;
@@ -180,66 +195,8 @@ public class IProCompiler {
                                 break;                             
                             default:;
                         }
-                                                                                               
-//=======================			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-		
 			
-		try {
-				if (br != null)br.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
+		
         }
-        
-        public void RegExChecker(String path){
-		
-		BufferedReader br = null;
-                int counter=0;
-                
-		try { 
-			
-			br = new BufferedReader(new FileReader(path));                     
-                       
-			while ((line = br.readLine()) != null) {                           
-                            for (;line.compareTo(nextline)==-1 && (line = br.readLine()) != null; lineNo++);
-                            System.out.print(line);
-                                                             
-                            for (patternNo=0;patternNo<regexes.length;patternNo++){
-          
-                                Pattern r = Pattern.compile(regexes[patternNo]);                                   
-                                Matcher m = r.matcher(line);
-                                if (m.find( )) {
-                                    System.out.println("\n");//                    Success!");
-                                    counter=this.StaticSymanticChecker(path);
-                                    for (;counter>0 && (line = br.readLine()) != null ;counter--);
-                                    break;
-                                }
-                            }
-                            if (patternNo>=regexes.length){
-                                System.out.println("                    Syntax Error!!");
-                                
-                            }
-                            lineNo++;
-                            
-			}
-                
-//=======================			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-		
-			
-		try {
-				if (br != null)br.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-			
-	}
-    
+              
 }

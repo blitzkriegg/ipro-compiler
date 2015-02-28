@@ -14,6 +14,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -321,10 +322,26 @@ public class MainSwingFrame extends javax.swing.JFrame {
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         // TODO add your handling code here:
         
-        this.saveFile();
+//        LinkedList<String> ErrorMessage = new LinkedList<String>();
         
-        IProCompiler ipro = new IProCompiler();
+//        int line=1;
+////        IProCompiler ipro = new IProCompiler();
+//       
+//        String source= this.getString()+'\n';
+//        System.out.println(source.length());
+//        for (int i=0,start=0;i<source.length();i++){
+//            if (source.charAt(i)=='\n'){
+//                if (start!=i){
+//                    if(IProCompiler.syntaxCheckLine(source.substring(start, i))){
+//                        OutputCanvas.setText("Systax Erorr in line "+line+'\n');
+//                    }                    
+//                }
+//                start=i+1;
+//                line++;
+//            }
+//        }
         
+
         
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
