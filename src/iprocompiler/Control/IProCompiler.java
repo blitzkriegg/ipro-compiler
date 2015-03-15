@@ -65,6 +65,13 @@ public class IProCompiler {
         }
         return codelines;
     }
+    
+    String [] codeline;
+    
+    public void MakeCodeLine(String code){
+        codeline = code.split("//n");
+    }
+    
     public static boolean syntaxCheckLine(String s) {
         boolean retval = false;
         for (int i = 13; i >= 0 && false == retval; i--) {
@@ -82,121 +89,95 @@ public class IProCompiler {
         return retval;
     }
         
-    public int StaticSymanticCheck(String code, int lineNumber){
+    public void StaticSymanticCheck(String code, int lineNumber){
         
-        String subline; //case7 (cmp)
-        String [] codelines = code.split("//n");
-        String codeline = codelines[lineNumber];
-
-        
-        
-            int counter=0;//case7 (cmp) if get out method need to traverse file pointer 
-                
-            StringBuffer compare = new StringBuffer(codeline);//case 8 9 (MACRO, Label)
-            
-        
-			switch(this.RegularExpressionCheck(codeline)){    
-                            case 7: case 13:
-                                StringBuffer label = new StringBuffer();
-                                int x=0;                                
-                                for (;(compare.charAt(x)==' ');x++);
-                                for (;(compare.charAt(x)!=' ');x++);                              
-                                for (;(compare.charAt(x)==' ');x++);
-                                
-                                label.append(compare.subSequence(x,compare.length()));
-                                label.append(':');
-                                
-                               //Read Another ilne again                                
-                                for (x=0; x<codelines.length;x++) {
-                                    subline =codelines[x];                                    
-                                    if (x!=lineNumber && subline.contains(label)){
-                                        break;          
-                                    }
-                                }
-                                
-                                if (x==codeline.length()){
-                                    System.out.println("                    Symantics Error!! ** Label dose not found!!");   
-                                    //put error in data class
-                                }     
-                                break;
-                                
-                                
-                            case 6:
-                                subline = null;
-                                for (lineNumber++; lineNumber!= codelines.length && codelines[lineNumber] != "\n" ;lineNumber++){
-                                    subline = codelines[lineNumber];
-                                }
-                                if(this.RegularExpressionCheck(subline)!=7){
-                                    System.out.println("                    Symantic Error! ** cmp should much with je, jg, jl");
-                                    // put Error in Data class
-                                }
-                                                               
-                                break;
-                            
-//                            case 14:
-//                                r = Pattern.compile(regexes[10]);                                   
-//                                m = r.matcher(line);
-//                                
-//                                //if it is MACRO then
-//                                if (m.find( )) {
-//                                    for(int i=0;(subline = lineCode.readLine()) != null && i<=lineNo;i++);
-//                                    x=1;
-//                                    for (int i=0;(subline = lineCode.readLine()) != null && x!=0;i++){
-//                                        for (;subline.compareTo("\n")==-1 && (subline = lineCode.readLine()) != null;);
-//                                        if (i==0 && !subline.contains("start")){
-//                                            System.out.println("                    Symantic Error ** MACRO can not found start keyword!");
-//                                            x=0;
-//                                            break;
-//                                        }
-//                                        r = Pattern.compile(regexes[13]);                                   
-//                                        m = r.matcher(subline);
-//                                        if (m.find( )){
-//                                            System.out.println("                    Symantic Error ** MACRO is not capable of having jmp keyword!");
-//                                            
-//                                            x=0;
-//                                            break;
-//                                        }
-//                                        r = Pattern.compile(regexes[7]);                                   
-//                                        m = r.matcher(subline);
-//                                        if (m.find( )){
-//                                            System.out.println("                    Symantic Error ** MACRO is not capable of having je, jg, jl keyword!");
-//                                            
-//                                            x=0;
-//                                            break;
-//                                        }     
-//                                        if (subline.contains("start") && i!=0)
-//                                            x++;
-//                                        else if (subline.contains("end"))
-//                                            x--;
-//                                    }
-//                                    if (x>0){
-//                                        System.out.println("                    Symantic Error ** MACRO can not found end keyword!");
-//                                        
-//                                    }
-//                                }
-//                                break;                             
-//                            default:;
-//                       
-                        }
-		return counter;	
-	}
-        
-        public void DynamicSymanticChecker(String lineCode){
-           
+        StringBuffer s = new StringBuffer(code);
                         
-			switch(this.RegularExpressionCheck(lineCode)){    
-                            case 7: case 13:
-                                
-                                break;
-                            case 6:
-                                
-                            case 14:
-                                
-                                break;                             
-                            default:;
-                        }
-			
-		
+            switch(this.RegularExpressionCheck(code)){    
+                case 7: case 13:                    
+                        SymanticLabelChecker(s, lineNumber);          
+                    break;                              
+                case 6:
+                        SymanticCmpChecker(s, lineNumber);                
+                    break;
+                            
+                case 14:
+                        SymanticMacroChecker(lineNumber);
+                    break;                             
+                default:;
+                       
+            }
+	}
+    
+    public void SymanticMacroChecker(int lineNumber){        
+        Boolean Status = null;
+        Boolean hasEnd = null;
+        for (; lineNumber<codeline.length;lineNumber++) {  
+            
+            if (codeline[lineNumber]!="\n"){    
+                if (Status == null && !codeline[lineNumber].contains("start")){                    
+                        System.out.println("                    Symantic Error ** MACRO can not found start keyword!");
+                        Status = false;
+                        hasEnd = false;
+                }else{Status=true;}
+                
+                if(Status == true && RegularExpressionCheck(codeline[lineNumber]) == 13){                
+                    System.out.println("                    Symantic Error ** MACRO is not capable of having jmp keyword!");
+                    Status = false;
+                }
+                if(Status == true && RegularExpressionCheck(codeline[lineNumber]) == 7){                
+                   System.out.println("                    Symantic Error ** MACRO is not capable of having je, jg, jl keyword!");
+                   Status = false;
+                }                  
+                if (codeline[lineNumber].contains("end")){
+                    Status = false;
+                    hasEnd = true;
+                }                     
+            }
         }
+        if (hasEnd == false){
+            System.out.println("                    Symantic Error ** MACRO can not found end keyword!");
+        }
+    
+    }
+    
+    public void SymanticCmpChecker(StringBuffer s, int lineNumber){        
+        String subline=null;
+        
+        for (lineNumber++; lineNumber!= codeline.length && codeline[lineNumber] != "\n" ;lineNumber++){
+            subline = codeline[lineNumber];
+        }
+        if(this.RegularExpressionCheck(subline)!=7){
+            System.out.println("                    Symantic Error! ** cmp should much with je, jg, jl");
+                                    // put Error in Data class
+        }
+    }
+    
+    public void SymanticLabelChecker(StringBuffer s, int lineNumber){
+        
+        StringBuffer label = new StringBuffer();
+        int x=0;    
+        
+        for (;(s.charAt(x)==' ');x++);
+        for (;(s.charAt(x)!=' ');x++);                              
+        for (;(s.charAt(x)==' ');x++);
+                                
+        label.append(s.subSequence(x,s.length()));
+        label.append(':');
+                                
+        //Read Another ilne again
+        String subline;
+        for (x=0, subline =codeline[x] ; x<codeline.length;x++, subline =codeline[x]) {                                                
+            if (x!=lineNumber && subline.contains(s)){
+                 break;          
+            }
+        }
+                                
+        if (x==codeline.length){
+            System.out.println("                    Symantics Error!! ** Label dose not found!!");   
+                                    //put error in data class
+        }     
+    }
+        
               
 }
