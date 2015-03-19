@@ -424,7 +424,9 @@ public class MainSwingFrame extends javax.swing.JFrame {
     
     public void setPixelColor(int x, int y, Color color)
     {
-        bi.setRGB(x, y, color.getRGB());
+        if(x >=0 && x <640 && y>=0 && y < 480){
+            bi.setRGB(x, y, color.getRGB());
+        }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel GraphicsOutput;
