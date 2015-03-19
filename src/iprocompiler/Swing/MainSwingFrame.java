@@ -5,17 +5,16 @@
  */
 package iprocompiler.Swing;
 
-import iprocompiler.Control.IProCompiler;
-import java.awt.Dialog;
-import java.awt.Frame;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedList;
 import java.util.List;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
@@ -26,11 +25,17 @@ import javax.swing.filechooser.FileFilter;
 public class MainSwingFrame extends javax.swing.JFrame {
     private File file = null;
     private JFileChooser fileChooser;
-    
+    private BufferedImage bi=null;
+    private ImageIcon icon=null;
+    static int i = 0;
     /**
      * Creates new form MainSwingFrame
      */
     public MainSwingFrame() {
+        bi = new BufferedImage(640,480, BufferedImage.TYPE_INT_RGB);
+        bi.getGraphics().setColor(Color.WHITE);
+        bi.getGraphics().fillRect(0, 0, 640, 480);
+        icon = new ImageIcon(bi);
         initComponents();
     }
 
@@ -43,13 +48,15 @@ public class MainSwingFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel1 = new javax.swing.JPanel();
+        TabPanel = new javax.swing.JTabbedPane();
+        Source = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         SourceEditor = new javax.swing.JTextArea();
-        jPanel2 = new javax.swing.JPanel();
+        Output = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         OutputCanvas = new javax.swing.JTextArea();
+        GraphicsOutputPanel = new javax.swing.JPanel();
+        GraphicsOutput = new javax.swing.JLabel(icon);
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         MenuItem_Open = new javax.swing.JMenuItem();
@@ -57,10 +64,10 @@ public class MainSwingFrame extends javax.swing.JFrame {
         MenuItem_SaveAs = new javax.swing.JMenuItem();
         MenuItem_Exit = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
-        jMenuItem4 = new javax.swing.JMenuItem();
-        jMenuItem5 = new javax.swing.JMenuItem();
+        MenuItem_Compile = new javax.swing.JMenuItem();
+        MenuItem_Run = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
-        jMenuItem6 = new javax.swing.JMenuItem();
+        MenuItem_About = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -70,36 +77,53 @@ public class MainSwingFrame extends javax.swing.JFrame {
         SourceEditor.setTabSize(5);
         jScrollPane1.setViewportView(SourceEditor);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 656, Short.MAX_VALUE)
+        javax.swing.GroupLayout SourceLayout = new javax.swing.GroupLayout(Source);
+        Source.setLayout(SourceLayout);
+        SourceLayout.setHorizontalGroup(
+            SourceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1)
+        SourceLayout.setVerticalGroup(
+            SourceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
         );
 
-        jTabbedPane1.addTab("Source", jPanel1);
+        TabPanel.addTab("Source", Source);
 
         OutputCanvas.setEditable(false);
         OutputCanvas.setColumns(20);
         OutputCanvas.setRows(5);
         jScrollPane2.setViewportView(OutputCanvas);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 656, Short.MAX_VALUE)
+        javax.swing.GroupLayout OutputLayout = new javax.swing.GroupLayout(Output);
+        Output.setLayout(OutputLayout);
+        OutputLayout.setHorizontalGroup(
+            OutputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
+        OutputLayout.setVerticalGroup(
+            OutputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
         );
 
-        jTabbedPane1.addTab("Output", jPanel2);
+        TabPanel.addTab("Output", Output);
+
+        GraphicsOutput.setBackground(new java.awt.Color(255, 255, 255));
+
+        javax.swing.GroupLayout GraphicsOutputPanelLayout = new javax.swing.GroupLayout(GraphicsOutputPanel);
+        GraphicsOutputPanel.setLayout(GraphicsOutputPanelLayout);
+        GraphicsOutputPanelLayout.setHorizontalGroup(
+            GraphicsOutputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(GraphicsOutput, javax.swing.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE)
+        );
+        GraphicsOutputPanelLayout.setVerticalGroup(
+            GraphicsOutputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(GraphicsOutputPanelLayout.createSequentialGroup()
+                .addComponent(GraphicsOutput, javax.swing.GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        TabPanel.addTab("Graphics Output", GraphicsOutputPanel);
 
         jMenu1.setText("File");
 
@@ -143,30 +167,35 @@ public class MainSwingFrame extends javax.swing.JFrame {
 
         jMenu3.setText("Run");
 
-        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F6, 0));
-        jMenuItem4.setText("Compile");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+        MenuItem_Compile.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F6, 0));
+        MenuItem_Compile.setText("Compile");
+        MenuItem_Compile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
+                MenuItem_CompileActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem4);
+        jMenu3.add(MenuItem_Compile);
 
-        jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F6, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem5.setText("Run");
-        jMenu3.add(jMenuItem5);
+        MenuItem_Run.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F6, java.awt.event.InputEvent.CTRL_MASK));
+        MenuItem_Run.setText("Run");
+        MenuItem_Run.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenuItem_RunActionPerformed(evt);
+            }
+        });
+        jMenu3.add(MenuItem_Run);
 
         jMenuBar1.add(jMenu3);
 
         jMenu2.setText("Help");
 
-        jMenuItem6.setText("About");
-        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+        MenuItem_About.setText("About");
+        MenuItem_About.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem6ActionPerformed(evt);
+                MenuItem_AboutActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem6);
+        jMenu2.add(MenuItem_About);
 
         jMenuBar1.add(jMenu2);
 
@@ -176,11 +205,11 @@ public class MainSwingFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(TabPanel)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(TabPanel, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         pack();
@@ -191,9 +220,9 @@ public class MainSwingFrame extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_MenuItem_ExitActionPerformed
 
-    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+    private void MenuItem_AboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_AboutActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem6ActionPerformed
+    }//GEN-LAST:event_MenuItem_AboutActionPerformed
 
     private void MenuItem_OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_OpenActionPerformed
         // TODO add your handling code here:
@@ -319,7 +348,7 @@ public class MainSwingFrame extends javax.swing.JFrame {
             }
     }//GEN-LAST:event_MenuItem_SaveAsActionPerformed
 
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+    private void MenuItem_CompileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_CompileActionPerformed
         // TODO add your handling code here:
         
 //        LinkedList<String> ErrorMessage = new LinkedList<String>();
@@ -343,8 +372,17 @@ public class MainSwingFrame extends javax.swing.JFrame {
         
 
         
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
+    }//GEN-LAST:event_MenuItem_CompileActionPerformed
 
+    private void MenuItem_RunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_RunActionPerformed
+//        if(type == 1){                                put condition if type of code is text output
+//            TabPanel.setSelectedIndex(1);
+//        }else{                                        else if graphical
+//            TabPanel.setSelectedIndex(2);
+//        }
+        GraphicsOutput.repaint(1);
+    }//GEN-LAST:event_MenuItem_RunActionPerformed
+        
     /**
      * @param args the command line arguments
      */
@@ -384,28 +422,35 @@ public class MainSwingFrame extends javax.swing.JFrame {
         return SourceEditor.getText();
     }
     
-    
+    public void setPixelColor(int x, int y, Color color)
+    {
+        bi.setRGB(x, y, color.getRGB());
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel GraphicsOutput;
+    private javax.swing.JPanel GraphicsOutputPanel;
+    private javax.swing.JMenuItem MenuItem_About;
+    private javax.swing.JMenuItem MenuItem_Compile;
     private javax.swing.JMenuItem MenuItem_Exit;
     private javax.swing.JMenuItem MenuItem_Open;
+    private javax.swing.JMenuItem MenuItem_Run;
     private javax.swing.JMenuItem MenuItem_Save;
     private javax.swing.JMenuItem MenuItem_SaveAs;
+    private javax.swing.JPanel Output;
     private javax.swing.JTextArea OutputCanvas;
+    private javax.swing.JPanel Source;
     private javax.swing.JTextArea SourceEditor;
+    private javax.swing.JTabbedPane TabPanel;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem6;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTabbedPane jTabbedPane1;
     // End of variables declaration//GEN-END:variables
 
+    
+    
 static class ExtensionFileFilter extends FileFilter {
 
     private List<String> extensions;
