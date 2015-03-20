@@ -26,14 +26,16 @@ public class IProCompiler {
                               "\\s*(?i)(add|sub|mul|div|mod)\\s+(?i)[a-f],\\s*((?i)[a-f]|\\d{0,})\\s*",   //4add,sub,mul,div,mod           4
                               "\\s*(?i)mov\\s+(?i)[a-f],\\s*(?i)[a-f]\\s*",                               //5mov                           5
                               "\\s*(?i)cmp\\s+(?i)[a-f],\\s*((?i)[a-f]|\\d)",                             //6comp                          7
-                              "\\s*(?i)(je|jg|jl)\\s+label\\d{1}\\s*",                                    //7je,jg,jl                      8
+                              "\\s*(?i)(je|jg|jl)\\s+[\\w][\\w\\d]+\\s*",                                    //7je,jg,jl                      8
                               "\\s*(?i)\\w+:(\\n|\\r\\n?)*\\s*",                                          //8
                               "\\s*(i*)(push|pop)\\s+[a-f]\\s*",                                          //9push,pop                      11,12
                               "\\s*MACRO\\s+(?i)\\w+:\\s*",                                               //10Macro                         10
                               "\\s*(?i)(start|end|exit)\\s*",                                             //11start,end,exit                0
                               "\\s*(?i)\\w+\\s*",                                                         //12
                               "([ ]*jmp[ ][\\w][\\w\\d]+)",                                              //13jmp};                           9
-                              "([ ]*[\\w][\\w\\d]+:)"};                                                   //14label};                         6
+                              "([ ]*[\\w][\\w\\d]+:)",                                                      //14label};                         6
+                              "\\s*(?i)(\n)"
+                    };                                                   
     
 //            "start|exit",   //blocks
 //            "([ ]*get[ ]+[a-f])",//get statement
@@ -48,41 +50,54 @@ public class IProCompiler {
 //            "([ ]*jmp[ ][\\w][\\w\\d]+)",   //jmp
 //            "([ ]*pop[ ]+[a-f])",   //pop
 //            "([ ]*push[ ]+(\\w\\d)*)",  //push
-//            "end"};
+//            "end",
+//            "\\s*(?i)(\n)"
+//            
+//    };
                             
                             
     /**
      * @param args the command line arguments
      */
-    public static String [] syntaxCheck(String code){
-        String [] codelines = code.split("//n");
-        for (String temp : codelines) {
-            if (!IProCompiler.syntaxCheckLine(temp)) {
-                //push error line number & error message to the list
-                //store label,MACRO names and their line number
+    
+    String [] codeline;    
+    public void MakeCodeLine(String code){
+        codeline = code.split("\n",-1);
+        
+    }
+    
+    public IproModel syntaxCheck(String code){
+        
+        IproModel model = new IproModel();
+        MakeCodeLine(code);
+        
+        
+        for (int i=0;i<codeline.length ;i++) {
+            
+            if (!syntaxCheckLine(codeline[i])) {  
+                System.out.println(codeline[i]);
+                String ErrorMessage ="Syntax Error";
+                model.ErrorPush(i, ErrorMessage);
             } 
             
         }
-        return codelines;
+        return model;
     }
-    
-    String [] codeline;
-    
-    public void MakeCodeLine(String code){
-        codeline = code.split("//n");
-    }
-    
-    public static boolean syntaxCheckLine(String s) {
+        
+    public boolean syntaxCheckLine(String s) {
         boolean retval = false;
-        for (int i = 13; i >= 0 && false == retval; i--) {
+        for (int i = 0; i< regexes.length && false == retval; i++) {
             retval = s.matches(regexes[i]);
+            
         }
+       
         return retval;
     }
     
-    public static int RegularExpressionCheck (String s){
+    public int RegularExpressionCheck (String s){
         int retval = -1;
         for (int i = 0; i < regexes.length && retval ==-1 ; i++) {
+           
             if (s.matches(regexes[i]))
                    retval = i;
         }

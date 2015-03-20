@@ -14,9 +14,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Random;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+import iprocompiler.Control.*;
 
 /**
  *
@@ -351,26 +353,16 @@ public class MainSwingFrame extends javax.swing.JFrame {
     private void MenuItem_CompileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_CompileActionPerformed
         // TODO add your handling code here:
         
-//        LinkedList<String> ErrorMessage = new LinkedList<String>();
+        IProCompiler ipro = new IProCompiler();        
         
-//        int line=1;
-////        IProCompiler ipro = new IProCompiler();
-//       
-//        String source= this.getString()+'\n';
-//        System.out.println(source.length());
-//        for (int i=0,start=0;i<source.length();i++){
-//            if (source.charAt(i)=='\n'){
-//                if (start!=i){
-//                    if(IProCompiler.syntaxCheckLine(source.substring(start, i))){
-//                        OutputCanvas.setText("Systax Erorr in line "+line+'\n');
-//                    }                    
-//                }
-//                start=i+1;
-//                line++;
-//            }
-//        }
+        IproModel model = new IproModel();      
+        model = ipro.syntaxCheck(getString());
         
-
+        OutputCanvas.setText("");
+        for (int i=0;i<model.ErrorMessage.size();i++){
+            OutputCanvas.append(model.ErrorMessage.get(i).getMessageLine());
+        }
+       
         
     }//GEN-LAST:event_MenuItem_CompileActionPerformed
 
@@ -380,6 +372,8 @@ public class MainSwingFrame extends javax.swing.JFrame {
 //        }else{                                        else if graphical
 //            TabPanel.setSelectedIndex(2);
 //        }
+        setPixelColor(i, i, Color.RED);
+        i++;
         GraphicsOutput.repaint(1);
     }//GEN-LAST:event_MenuItem_RunActionPerformed
         
