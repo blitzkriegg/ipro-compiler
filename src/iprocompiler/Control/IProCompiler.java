@@ -21,7 +21,7 @@ public class IProCompiler {
     static String[] regexes = {
                               "\\s*(?i)put\\s+((?i)[a-f]|\\w*(\\d{1,})*(\\W\\D)*|\\n|\\t\\b)\\s*",     //0 put                          2
                               "\\s*(?i)get\\s+(?i)[a-f](\\s*|\\n|\\r\\n?)\\s*",                           //1get                          1
-                              "\\s*",                                                                      //2
+                              "\\s*",                                                                      //2        \n
                               "\\s*(?i)set\\s+(?i)[a-f],\\s*\\d{1,}\\s*",                                 //3set                           3
                               "\\s*(?i)(add|sub|mul|div|mod)\\s+(?i)[a-f],\\s*((?i)[a-f]|\\d{0,})\\s*",   //4add,sub,mul,div,mod           4
                               "\\s*(?i)mov\\s+(?i)[a-f],\\s*(?i)[a-f]\\s*",                               //5mov                           5
@@ -32,29 +32,10 @@ public class IProCompiler {
                               "\\s*MACRO\\s+(?i)\\w+:\\s*",                                               //10Macro                         10
                               "\\s*(?i)(start|end|exit)\\s*",                                             //11start,end,exit                0
                               "\\s*(?i)\\w+\\s*",                                                         //12
-                              "([ ]*jmp[ ][\\w][\\w\\d]+)",                                              //13jmp};                           9
-                              "([ ]*[\\w][\\w\\d]+:)",                                                      //14label};                         6
-                              "\\s*(?i)(\n)"                                                                //15 not next line
+                              "([ ]*jmp[ ][\\w][\\w\\d]+)",                                              //13jmp};                           
+                              "\\s*(?i)(\n)"                                                                //14 not next line
                     };                                                   
-    
-//            "start|exit",   //blocks
-//            "([ ]*get[ ]+[a-f])",//get statement
-//            "([ ]*put[ ]+[\\d\\w_])",   //put
-//            "([ ]*set[ ]+[\\d\\w_]+,[0-9]+)", //set satement
-//            "([ ]*add|sub|div|mul[ ]+[a-f],([a-f]|[\\d]))", //operation
-//            "([ ]*mov[ ]+[a-f],([a-f]|[\\d]*))",  //mov statement
-//            "([ ]*[A-Z]+:)",    //MACRO label    
-//            "([ ]*[\\w][\\w\\d]+:)",        //label
-//            "([ ]*cmp[ ][a-f],[a-f])",          //compaire
-//            "([ ]*(je|jg|jl)[ ]+[\\w][\\w\\d]+)",  //pair with cmp
-//            "([ ]*jmp[ ][\\w][\\w\\d]+)",   //jmp
-//            "([ ]*pop[ ]+[a-f])",   //pop
-//            "([ ]*push[ ]+(\\w\\d)*)",  //push
-//            "end",
-//            "\\s*(?i)(\n)"
-//            
-//    };
-                            
+                
                             
     /**
      * @param args the command line arguments
@@ -112,8 +93,10 @@ public class IProCompiler {
         MakeCodeLine(code);
         
         for (int i=0;i<codeline.length ;i++) {
+           
             switch(this.RegularExpressionCheck(codeline[i])){    
                 case 7: case 13:        
+                    
                         StringBuffer s = new StringBuffer(codeline[i]);
                         SymanticLabelChecker(i,model);          
                     break;                              
@@ -121,9 +104,12 @@ public class IProCompiler {
                         SymanticCmpChecker(i,model);                
                     break;
                                 
-    //            case 14:
-    //                SymanticMacroChecker(lineNumber);
-    //                break;                             
+                case 8: 
+                    
+                    if (codeline[i].contains("MACRO")){
+                        SymanticMacroChecker(i,model);
+                    }
+                    break;                             
                 default:;
                        
             }            
@@ -132,25 +118,28 @@ public class IProCompiler {
             return model;
 	}
     
-    public void SymanticMacroChecker(int lineNumber){        
+    public void SymanticMacroChecker(int lineNumber, IproModel model){        
         Boolean Status = null;
-        Boolean hasEnd = null;
-        for (; lineNumber<codeline.length;lineNumber++) {  
-            
-            if (codeline[lineNumber]!="\n"){    
-                if (Status == null && !codeline[lineNumber].contains("start")){                    
-                        System.out.println("                    Symantic Error ** MACRO can not found start keyword!");
+        Boolean hasEnd = false;
+        
+        for (lineNumber++; lineNumber<codeline.length-1;lineNumber++) {  
+            System.out.println(codeline[lineNumber]);
+            if (RegularExpressionCheck( codeline[lineNumber])!=2){    
+                if (Status == null && !codeline[lineNumber].contains("start")){                  
+                        String Error ="Symantic Error ** MACRO can not found start keyword!";
+                        model.ErrorPush(lineNumber, Error);
                         Status = false;
-                        hasEnd = false;
                 }else{Status=true;}
                 
-                if(Status == true && RegularExpressionCheck(codeline[lineNumber]) == 13){                
-                    System.out.println("                    Symantic Error ** MACRO is not capable of having jmp keyword!");
+                if(Status == true && RegularExpressionCheck(codeline[lineNumber]) == 13){                 
+                    String Error ="Symantic Error ** MACRO is not capable of having jmp keyword!";
+                    model.ErrorPush(lineNumber, Error);
                     Status = false;
                 }
-                if(Status == true && RegularExpressionCheck(codeline[lineNumber]) == 7){                
-                   System.out.println("                    Symantic Error ** MACRO is not capable of having je, jg, jl keyword!");
-                   Status = false;
+                if(Status == true && RegularExpressionCheck(codeline[lineNumber]) == 7){     
+                    String Error =" Symantic Error ** MACRO is not capable of having je, jg, jl keyword!";
+                    model.ErrorPush(lineNumber, Error); 
+                    Status = false;
                 }                  
                 if (codeline[lineNumber].contains("end")){
                     Status = false;
@@ -158,22 +147,21 @@ public class IProCompiler {
                 }                     
             }
         }
-        if (hasEnd == false){
-            System.out.println("                    Symantic Error ** MACRO can not found end keyword!");
+        if (hasEnd == false){           
+            String Error ="Symantic Error ** MACRO can not found end keyword!";
+            model.ErrorPush(lineNumber, Error); 
         }
     
     }
     
     public void SymanticCmpChecker(int lineNumber, IproModel model){        
         
-        System.out.println(codeline[lineNumber]);
         for (lineNumber++; lineNumber!= codeline.length;lineNumber++){
             if (this.RegularExpressionCheck(codeline[lineNumber])==7){
                 break;
             }
-            if(this.RegularExpressionCheck(codeline[lineNumber])!=(7&15&2)){
-                System.out.println(this.RegularExpressionCheck(codeline[lineNumber]));
-                
+            if(this.RegularExpressionCheck(codeline[lineNumber])!=(7&14&2)){
+               
                 String Error ="Symantic Error! ** cmp should much with je, jg, jl";
                 model.ErrorPush(lineNumber, Error);
                 break;
