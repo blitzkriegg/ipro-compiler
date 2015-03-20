@@ -12,13 +12,17 @@ import java.util.LinkedList;
  * @author Michael
  */
 public class IproModel {
-    
-    
-    
-    public LinkedList<ErrorDatas> ErrorMessage;
+        
+   public LinkedList<ErrorDatas> ErrorMessage;
+   public int a,b,c,d,e,f;
+   public int display;
+   
+   
     
    public IproModel (){
         ErrorMessage = new LinkedList<ErrorDatas>();
+        a=b=c=d=e=f=0;
+        display=0;
    }
    
    public void ErrorPush (int lineNumber,String error){

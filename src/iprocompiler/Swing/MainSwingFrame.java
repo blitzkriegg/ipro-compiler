@@ -92,7 +92,6 @@ public class MainSwingFrame extends javax.swing.JFrame {
 
         TabPanel.addTab("Source", Source);
 
-        OutputCanvas.setEditable(false);
         OutputCanvas.setColumns(20);
         OutputCanvas.setRows(5);
         jScrollPane2.setViewportView(OutputCanvas);
@@ -379,13 +378,14 @@ public class MainSwingFrame extends javax.swing.JFrame {
         
         IProCompiler ipro = new IProCompiler();                
         IproModel model = new IproModel();      
-       
+      
         OutputCanvas.setText("");
         if (Runable){      
             model = ipro.StaticSymanticCheck(getString());
 
             for (int i=0;i<model.ErrorMessage.size();i++){
                 OutputCanvas.append(model.ErrorMessage.get(i).getMessageLine());
+                 Runable = false;
             }
             
             
@@ -393,10 +393,68 @@ public class MainSwingFrame extends javax.swing.JFrame {
             i++;
             GraphicsOutput.repaint(1);
             
-            Runable = false;
+           
         }else{
             OutputCanvas.append("Please Fix your Error / Compile First before you Run Project. ");
         }
+        
+        if (Runable == true){
+            ipro.MakeCodeLine(getString());
+        
+            for (int i=0;i<ipro.codeline.length;i++) {
+
+                switch(ipro.RegularExpressionCheck(ipro.codeline[i])){    
+
+                    case 0:                        
+                        OutputCanvas.append(Integer.toString(ipro.put (i, model)+'\n'));
+                        break;
+                    case 1:
+                        
+                        break;
+                    case 2:
+                        break;
+
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+
+                    case 5:
+                        break;
+
+                    case 6:
+                        break;
+                    case 7:
+                        break;
+                    case 8:
+                        if (ipro.codeline[i].contains("MACRO")){
+
+                        }
+                        break;
+                    case 9:
+                        break;
+                    case 10:
+                        break;
+                    case 11:
+                        break;
+                    case 12:
+                        break;
+                    case 13:
+                        break;
+                    case 14:
+                        break;
+                    case 15: 
+                        break;
+
+                    default:;
+
+                }
+            }
+       
+            
+            Runable = false;
+        }
+        
            
         
     }//GEN-LAST:event_MenuItem_RunActionPerformed

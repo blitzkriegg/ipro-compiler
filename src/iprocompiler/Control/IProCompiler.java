@@ -41,7 +41,38 @@ public class IProCompiler {
      * @param args the command line arguments
      */
     
-    String[] codeline;
+    
+    public int put (int lineNumber,IproModel model){
+        StringBuffer val= new StringBuffer();
+        int x=0;
+        int y;
+        for (;(codeline[lineNumber].charAt(x)==' ');x++);
+        for (;(codeline[lineNumber].charAt(x)!=' ');x++);                              
+        for (;(codeline[lineNumber].charAt(x)==' ');x++);
+        for (y=x+1;y<codeline[lineNumber].length() && (codeline[lineNumber].charAt(y)!=' ');y++);  
+
+        val.append(codeline[lineNumber].subSequence(x,y));
+        System.out.println(val);
+        
+        switch(val.toString()){
+            case "a":
+                return model.a;                 
+            case "b":
+                return model.b;                
+            case "c":
+                return model.c;
+            case "d":
+                return model.d;
+            case "e":
+                return model.e;
+            case "f":
+                return model.f;
+            default:
+                return Integer.parseInt(val.toString());
+        }
+    }
+    
+    public String[] codeline;
     int size;
     public void MakeCodeLine(String code){
         
@@ -193,6 +224,8 @@ public class IProCompiler {
                                     
         }     
     }
+    
+    
         
               
 }
