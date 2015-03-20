@@ -349,7 +349,7 @@ public class MainSwingFrame extends javax.swing.JFrame {
             }
             }
     }//GEN-LAST:event_MenuItem_SaveAsActionPerformed
-
+    private boolean Runable = false;
     private void MenuItem_CompileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItem_CompileActionPerformed
         // TODO add your handling code here:
         
@@ -359,8 +359,12 @@ public class MainSwingFrame extends javax.swing.JFrame {
         model = ipro.syntaxCheck(getString());
         
         OutputCanvas.setText("");
-        for (int i=0;i<model.ErrorMessage.size();i++){
+        int i;
+        for (i=0;i<model.ErrorMessage.size();i++){
             OutputCanvas.append(model.ErrorMessage.get(i).getMessageLine());
+        }
+        if (i==0){
+            Runable = true;
         }
        
         
@@ -372,9 +376,29 @@ public class MainSwingFrame extends javax.swing.JFrame {
 //        }else{                                        else if graphical
 //            TabPanel.setSelectedIndex(2);
 //        }
-        setPixelColor(i, i, Color.RED);
-        i++;
-        GraphicsOutput.repaint(1);
+        
+        IProCompiler ipro = new IProCompiler();                
+        IproModel model = new IproModel();      
+       
+        OutputCanvas.setText("");
+        if (Runable){      
+            model = ipro.StaticSymanticCheck(getString());
+
+            for (int i=0;i<model.ErrorMessage.size();i++){
+                OutputCanvas.append(model.ErrorMessage.get(i).getMessageLine());
+            }
+            
+            
+            setPixelColor(i, i, Color.RED);
+            i++;
+            GraphicsOutput.repaint(1);
+            
+            Runable = false;
+        }else{
+            OutputCanvas.append("Please Fix your Error / Compile First before you Run Project. ");
+        }
+           
+        
     }//GEN-LAST:event_MenuItem_RunActionPerformed
         
     /**

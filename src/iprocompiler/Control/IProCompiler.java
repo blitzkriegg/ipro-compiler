@@ -34,7 +34,7 @@ public class IProCompiler {
                               "\\s*(?i)\\w+\\s*",                                                         //12
                               "([ ]*jmp[ ][\\w][\\w\\d]+)",                                              //13jmp};                           9
                               "([ ]*[\\w][\\w\\d]+:)",                                                      //14label};                         6
-                              "\\s*(?i)(\n)"
+                              "\\s*(?i)(\n)"                                                                //15 not next line
                     };                                                   
     
 //            "start|exit",   //blocks
@@ -60,8 +60,10 @@ public class IProCompiler {
      * @param args the command line arguments
      */
     
-    String [] codeline;    
+    String[] codeline;
+    int size;
     public void MakeCodeLine(String code){
+        
         codeline = code.split("\n",-1);
         
     }
@@ -104,24 +106,30 @@ public class IProCompiler {
         return retval;
     }
         
-    public void StaticSymanticCheck(String code, int lineNumber){
+    public IproModel StaticSymanticCheck(String code){
         
-        StringBuffer s = new StringBuffer(code);
-                        
-            switch(this.RegularExpressionCheck(code)){    
-                case 7: case 13:                    
-                        SymanticLabelChecker(s, lineNumber);          
+        IproModel model = new IproModel();
+        MakeCodeLine(code);
+        
+        for (int i=0;i<codeline.length ;i++) {
+            switch(this.RegularExpressionCheck(codeline[i])){    
+                case 7: case 13:        
+                        StringBuffer s = new StringBuffer(codeline[i]);
+                        SymanticLabelChecker(i,model);          
                     break;                              
                 case 6:
-                        SymanticCmpChecker(s, lineNumber);                
+                        SymanticCmpChecker(i,model);                
                     break;
-                            
-                case 14:
-                        SymanticMacroChecker(lineNumber);
-                    break;                             
+                                
+    //            case 14:
+    //                SymanticMacroChecker(lineNumber);
+    //                break;                             
                 default:;
                        
-            }
+            }            
+        }           
+          
+            return model;
 	}
     
     public void SymanticMacroChecker(int lineNumber){        
@@ -156,41 +164,45 @@ public class IProCompiler {
     
     }
     
-    public void SymanticCmpChecker(StringBuffer s, int lineNumber){        
-        String subline=null;
+    public void SymanticCmpChecker(int lineNumber, IproModel model){        
         
-        for (lineNumber++; lineNumber!= codeline.length && codeline[lineNumber] != "\n" ;lineNumber++){
-            subline = codeline[lineNumber];
-        }
-        if(this.RegularExpressionCheck(subline)!=7){
-            System.out.println("                    Symantic Error! ** cmp should much with je, jg, jl");
-                                    // put Error in Data class
+        System.out.println(codeline[lineNumber]);
+        for (lineNumber++; lineNumber!= codeline.length;lineNumber++){
+            if (this.RegularExpressionCheck(codeline[lineNumber])==7){
+                break;
+            }
+            if(this.RegularExpressionCheck(codeline[lineNumber])!=(7&15&2)){
+                System.out.println(this.RegularExpressionCheck(codeline[lineNumber]));
+                
+                String Error ="Symantic Error! ** cmp should much with je, jg, jl";
+                model.ErrorPush(lineNumber, Error);
+                break;
+            }
         }
     }
     
-    public void SymanticLabelChecker(StringBuffer s, int lineNumber){
+    public void SymanticLabelChecker(int lineNumber, IproModel model){
         
         StringBuffer label = new StringBuffer();
         int x=0;    
-        
-        for (;(s.charAt(x)==' ');x++);
-        for (;(s.charAt(x)!=' ');x++);                              
-        for (;(s.charAt(x)==' ');x++);
+    
+        for (;(codeline[lineNumber].charAt(x)==' ');x++);
+        for (;(codeline[lineNumber].charAt(x)!=' ');x++);                              
+        for (;(codeline[lineNumber].charAt(x)==' ');x++);
                                 
-        label.append(s.subSequence(x,s.length()));
+        label.append(codeline[lineNumber].subSequence(x,codeline[lineNumber].length()));
         label.append(':');
-                                
-        //Read Another ilne again
-        String subline;
-        for (x=0, subline =codeline[x] ; x<codeline.length;x++, subline =codeline[x]) {                                                
-            if (x!=lineNumber && subline.contains(s)){
+         
+        for (x=0 ; x<codeline.length-1; x++) {                                                
+            if (x!=lineNumber && codeline[x].contains(label)){
                  break;          
             }
         }
                                 
-        if (x==codeline.length){
-            System.out.println("                    Symantics Error!! ** Label dose not found!!");   
-                                    //put error in data class
+        if (x==codeline.length-1){
+            String Error ="Symantics Error!! ** Label ("+label+") dose not found!!";
+            model.ErrorPush(lineNumber, Error);
+                                    
         }     
     }
         
