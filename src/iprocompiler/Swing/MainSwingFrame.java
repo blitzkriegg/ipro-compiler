@@ -389,14 +389,15 @@ public class MainSwingFrame extends javax.swing.JFrame {
             }
             
             
-            setPixelColor(i, i, Color.RED);
-            i++;
-            GraphicsOutput.repaint(1);
+            
             
            
         }else{
             OutputCanvas.append("Please Fix your Error / Compile First before you Run Project. ");
         }
+        setPixelColor(i, i, Color.RED);
+            i++;
+            GraphicsOutput.repaint(1);
         
         if (Runable == true){
             ipro.MakeCodeLine(getString());
@@ -405,8 +406,10 @@ public class MainSwingFrame extends javax.swing.JFrame {
 
                 switch(ipro.RegularExpressionCheck(ipro.codeline[i])){    
 
-                    case 0:                        
-                        OutputCanvas.append(Integer.toString(ipro.put (i, model)+'\n'));
+                    case 0:
+                       
+                        OutputCanvas.append(Integer.toString(ipro.put (i, model))+'\n');
+                        System.out.print(model.display);
                         break;
                     case 1:
                         
@@ -415,6 +418,7 @@ public class MainSwingFrame extends javax.swing.JFrame {
                         break;
 
                     case 3:
+                        model = ipro.set(i, model);
                         break;
                     case 4:
                         break;

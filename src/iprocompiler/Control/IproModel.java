@@ -17,7 +17,9 @@ public class IproModel {
    public int a,b,c,d,e,f;
    public int display;
    
-   
+   public void setA(String a){
+       this.a = Integer.parseInt(a);
+   }  
     
    public IproModel (){
         ErrorMessage = new LinkedList<ErrorDatas>();

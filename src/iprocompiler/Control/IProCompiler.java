@@ -46,9 +46,7 @@ public class IProCompiler {
         StringBuffer val= new StringBuffer();
         int x=0;
         int y;
-        for (;(codeline[lineNumber].charAt(x)==' ');x++);
-        for (;(codeline[lineNumber].charAt(x)!=' ');x++);                              
-        for (;(codeline[lineNumber].charAt(x)==' ');x++);
+        x=labelSkip(lineNumber);
         for (y=x+1;y<codeline[lineNumber].length() && (codeline[lineNumber].charAt(y)!=' ');y++);  
 
         val.append(codeline[lineNumber].subSequence(x,y));
@@ -58,7 +56,7 @@ public class IProCompiler {
             case "a":
                 return model.a;                 
             case "b":
-                return model.b;                
+                return  model.b;                
             case "c":
                 return model.c;
             case "d":
@@ -66,10 +64,62 @@ public class IProCompiler {
             case "e":
                 return model.e;
             case "f":
-                return model.f;
+               return model.f;
             default:
                 return Integer.parseInt(val.toString());
         }
+        
+    }
+    
+    public int labelSkip(int lineNumber){
+        int x=0;
+        
+        for (;(codeline[lineNumber].charAt(x)==' ');x++);
+        for (;(codeline[lineNumber].charAt(x)!=' ');x++);                              
+        for (;(codeline[lineNumber].charAt(x)==' ');x++);
+        
+        return x;
+    }
+    
+    public IproModel set (int lineNumber,IproModel model){
+        StringBuffer val= new StringBuffer();
+        StringBuffer number= new StringBuffer();
+        
+        int fx=0,lx=0;
+        int fy=0,ly=0;
+        
+        fx=labelSkip(lineNumber);        
+        fy=codeline[lineNumber].indexOf(','); 
+        for (lx=fx+1;lx<fy &&(codeline[lineNumber].charAt(lx)!=' ');lx++);               
+        for (fy++,ly=fy+1;ly<codeline[lineNumber].length() && (codeline[lineNumber].charAt(ly)!=' ');ly++);
+
+        val.append(codeline[lineNumber].subSequence(fx,lx));
+        number.append(codeline[lineNumber].subSequence(fy,ly));
+
+
+        switch(val.toString()){
+            case "a":
+                model.a = Integer.parseInt(number.toString());             
+            case "b":
+                model.b = Integer.parseInt(number.toString());
+                break;
+            case "c":
+                model.c = Integer.parseInt(number.toString());
+                break;
+            case "d":
+                model.d = Integer.parseInt(number.toString());
+                break;
+            case "e":
+                model.e = Integer.parseInt(number.toString());
+                break;
+            case "f":
+                model.f = Integer.parseInt(number.toString());
+                break;
+            default:
+                break;
+        }
+        System.out.println(model.a);
+        return model;
     }
     
     public String[] codeline;
@@ -126,8 +176,7 @@ public class IProCompiler {
         for (int i=0;i<codeline.length ;i++) {
            
             switch(this.RegularExpressionCheck(codeline[i])){    
-                case 7: case 13:        
-                    
+                case 7: case 13:                            
                         StringBuffer s = new StringBuffer(codeline[i]);
                         SymanticLabelChecker(i,model);          
                     break;                              
@@ -205,9 +254,7 @@ public class IProCompiler {
         StringBuffer label = new StringBuffer();
         int x=0;    
     
-        for (;(codeline[lineNumber].charAt(x)==' ');x++);
-        for (;(codeline[lineNumber].charAt(x)!=' ');x++);                              
-        for (;(codeline[lineNumber].charAt(x)==' ');x++);
+        x=labelSkip(lineNumber);
                                 
         label.append(codeline[lineNumber].subSequence(x,codeline[lineNumber].length()));
         label.append(':');
@@ -223,9 +270,6 @@ public class IProCompiler {
             model.ErrorPush(lineNumber, Error);
                                     
         }     
-    }
-    
-    
-        
+    }    
               
 }
