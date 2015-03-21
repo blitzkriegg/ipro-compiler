@@ -71,6 +71,26 @@ public class IProCompiler {
         
     }
     
+    public int jmp (int lineNumber,IproModel model){
+        StringBuffer val= new StringBuffer();
+        int x=0;
+        int y;
+        x=labelSkip(lineNumber);
+        for (y=x+1;y<codeline[lineNumber].length() && (codeline[lineNumber].charAt(y)!=' ');y++);  
+
+        val.append(codeline[lineNumber].subSequence(x,y));
+        System.out.println(val);
+        
+        for (x=0 ; x<codeline.length-1; x++) {                                                
+            if (x!=lineNumber && codeline[x].contains(val)){
+                 break;          
+            }
+        }
+        
+        return x;
+    }
+    
+    
     public int labelSkip(int lineNumber){
         int x=0;
         
@@ -79,6 +99,100 @@ public class IProCompiler {
         for (;(codeline[lineNumber].charAt(x)==' ');x++);
         
         return x;
+    }
+    
+    public int calcuraion (int lineNumber, IproModel model){
+        int x =0,y=0;
+        int ret =0;
+        
+        StringBuffer operation= new StringBuffer();
+        StringBuffer val= new StringBuffer();
+        StringBuffer val2= new StringBuffer();
+        
+        for (;(codeline[lineNumber].charAt(x)==' ');x++);
+        for (y=x+1;y<codeline[lineNumber].length() && (codeline[lineNumber].charAt(y)!=' ');y++);        
+        operation.append(codeline[lineNumber].subSequence(x,y));
+       
+        
+        for (x=y+1;(codeline[lineNumber].charAt(x)==' ');x++);
+        for (y=x+1;y<codeline[lineNumber].length() && (codeline[lineNumber].charAt(y)!=' ') && (codeline[lineNumber].charAt(y)!=',');y++);
+        val.append(codeline[lineNumber].subSequence(x,y));
+        
+        
+        for (x=y+1;(codeline[lineNumber].charAt(x)==' ');x++);
+        for (y=x+1;y<codeline[lineNumber].length() && (codeline[lineNumber].charAt(y)!=' ');y++);
+        val2.append(codeline[lineNumber].subSequence(x,y));
+        
+        int variable1=0,variable2=0;
+        
+        switch(val.toString()){
+            case "a":
+                    variable1=model.a;
+                break;
+            case "b":
+                    variable1=model.b;
+                break;      
+            case "c":
+                    variable1=model.c;
+                break;
+            case "d":
+                    variable1=model.d;
+                break;
+            case "e":
+                    variable1=model.e;
+                break;
+            case "f":
+                    variable1=model.f;
+                break; 
+            default:
+                variable1=Integer.parseInt(val.toString());
+                
+        }
+        
+        switch(val2.toString()){
+            case "a":
+                    variable2=model.a;
+                break;
+            case "b":
+                    variable2=model.b;
+                break;      
+            case "c":
+                    variable2=model.c;
+                break;
+            case "d":
+                    variable2=model.d;
+                break;
+            case "e":
+                    variable2=model.e;
+                break;
+            case "f":
+                    variable2=model.f;
+                break; 
+            default:
+                variable1=Integer.parseInt(val2.toString());
+        }
+        //add,sub,mul,div,mod
+        switch(operation.toString()){
+            case "add":
+                    ret = variable1+variable2;
+                break;
+            case "sub":
+                    ret = variable1-variable2;
+                break;      
+            case "mul":
+                    ret = variable1*variable2;
+                break;
+            case "div":
+                    ret = variable1/variable2;
+                break;
+            case "mod":
+                    ret = variable1%variable2;
+                break;
+            default:
+                break;
+        }
+        
+        return ret;
     }
     
     public IproModel set (int lineNumber,IproModel model){
@@ -116,9 +230,9 @@ public class IProCompiler {
                 model.f = Integer.parseInt(number.toString());
                 break;
             default:
+               
                 break;
         }
-        System.out.println(model.a);
         return model;
     }
     

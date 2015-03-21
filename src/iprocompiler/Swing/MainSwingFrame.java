@@ -409,7 +409,6 @@ public class MainSwingFrame extends javax.swing.JFrame {
                     case 0:
                        
                         OutputCanvas.append(Integer.toString(ipro.put (i, model))+'\n');
-                        System.out.print(model.display);
                         break;
                     case 1:
                         
@@ -421,6 +420,7 @@ public class MainSwingFrame extends javax.swing.JFrame {
                         model = ipro.set(i, model);
                         break;
                     case 4:
+                        OutputCanvas.append(Integer.toString(ipro.calcuraion(i,model))+'\n');
                         break;
 
                     case 5:
@@ -444,6 +444,7 @@ public class MainSwingFrame extends javax.swing.JFrame {
                     case 12:
                         break;
                     case 13:
+                        i=ipro.jmp(i, model);
                         break;
                     case 14:
                         break;
